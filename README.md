@@ -170,6 +170,8 @@ Pass `show_shortcut_hints=True` to the `TerminalMenu` constructor to display sho
 for very long menus which need scrolling). Additionally pass `show_shortcut_hints_in_status_bar=False` if you prefer
 shortcut hints in the menu title.
 
+By default shortcuts are case insensitive, you can control this behaviour with `shortcut_case_sensitive`.
+
 #### Shortcuts example
 
 Create a menu of some fruits and use the first letter as shortcut key:
@@ -453,6 +455,7 @@ usage: simple-term-menu [-h] [-s] [-X] [-l] [--cursor CURSOR]
                         [--search-highlight-style SEARCH_HIGHLIGHT_STYLE]
                         [--search-key SEARCH_KEY]
                         [--shortcut-brackets-highlight-style SHORTCUT_BRACKETS_HIGHLIGHT_STYLE]
+                        [--shortcut-case-sensitive]
                         [--shortcut-key-highlight-style SHORTCUT_KEY_HIGHLIGHT_STYLE]
                         [--show-multi-select-hint]
                         [--show-multi-select-hint-text SHOW_MULTI_SELECT_HINT_TEXT]
@@ -530,6 +533,8 @@ options:
   --shortcut-brackets-highlight-style SHORTCUT_BRACKETS_HIGHLIGHT_STYLE
                         style of brackets enclosing shortcut keys (default:
                         "fg_gray")
+  --shortcut-case-sensitive
+                          shortcuts are case sensitive
   --shortcut-key-highlight-style SHORTCUT_KEY_HIGHLIGHT_STYLE
                         style of shortcut keys (default: "fg_blue")
   --show-multi-select-hint

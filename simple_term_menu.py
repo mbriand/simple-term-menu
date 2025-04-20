@@ -69,6 +69,7 @@ DEFAULT_SEARCH_CASE_SENSITIVE = False
 DEFAULT_SEARCH_HIGHLIGHT_STYLE = ("fg_black", "bg_yellow", "bold")
 DEFAULT_SEARCH_KEY = "/"
 DEFAULT_SHORTCUT_BRACKETS_HIGHLIGHT_STYLE = ("fg_gray",)
+DEFAULT_SHORTCUT_CASE_SENSITIVE = False
 DEFAULT_SHORTCUT_KEY_HIGHLIGHT_STYLE = ("fg_blue",)
 DEFAULT_SHOW_MULTI_SELECT_HINT = False
 DEFAULT_SHOW_SEARCH_HINT = False
@@ -619,6 +620,7 @@ class TerminalMenu:
         search_highlight_style: Optional[Iterable[str]] = DEFAULT_SEARCH_HIGHLIGHT_STYLE,
         search_key: Optional[str] = DEFAULT_SEARCH_KEY,
         shortcut_brackets_highlight_style: Optional[Iterable[str]] = DEFAULT_SHORTCUT_BRACKETS_HIGHLIGHT_STYLE,
+        shortcut_case_sensitive: bool = DEFAULT_SHORTCUT_CASE_SENSITIVE,
         shortcut_key_highlight_style: Optional[Iterable[str]] = DEFAULT_SHORTCUT_KEY_HIGHLIGHT_STYLE,
         show_multi_select_hint: bool = DEFAULT_SHOW_MULTI_SELECT_HINT,
         show_multi_select_hint_text: Optional[str] = None,
@@ -767,6 +769,7 @@ class TerminalMenu:
         self._shortcut_brackets_highlight_style = (
             tuple(shortcut_brackets_highlight_style) if shortcut_brackets_highlight_style is not None else ()
         )
+        self._shortcut_case_sensitive = shortcut_case_sensitive
         self._shortcut_key_highlight_style = (
             tuple(shortcut_key_highlight_style) if shortcut_key_highlight_style is not None else ()
         )
@@ -1544,7 +1547,7 @@ class TerminalMenu:
                 next_key = self._read_next_key(ignore_case=False)
                 if self._search or self._search_key is None:
                     remove_letter_keys(current_menu_action_to_keys)
-                else:
+                elif not self._shortcut_case_sensitive:
                     next_key = next_key.lower()
                 if self._search_key is not None and not self._search and next_key in self._shortcut_keys:
                     shortcut_menu_index = self._shortcut_keys.index(next_key)
@@ -1826,6 +1829,12 @@ def get_argumentparser() -> argparse.ArgumentParser:
         help='style of brackets enclosing shortcut keys (default: "%(default)s")',
     )
     parser.add_argument(
+        "--shortcut-case-sensitive",
+        action="store_true",
+        dest="shortcut_case_sensitive",
+        help="shortcuts are case sensitive",
+    )
+    parser.add_argument(
         "--shortcut-key-highlight-style",
         action="store",
         dest="shortcut_key_highlight_style",
@@ -2030,6 +2039,7 @@ def main() -> None:
             search_highlight_style=args.search_highlight_style,
             search_key=args.search_key,
             shortcut_brackets_highlight_style=args.shortcut_brackets_highlight_style,
+            shortcut_case_sensitive=args.shortcut_case_sensitive,
             shortcut_key_highlight_style=args.shortcut_key_highlight_style,
             show_multi_select_hint=args.show_multi_select_hint,
             show_multi_select_hint_text=args.show_multi_select_hint_text,
