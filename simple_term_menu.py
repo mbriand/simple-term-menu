@@ -826,6 +826,7 @@ class TerminalMenu:
         self._new_term = None  # type: Optional[List[Union[int, List[bytes]]]]
         self._tty_in = None  # type: Optional[TextIO]
         self._tty_out = None  # type: Optional[TextIO]
+        self._pending_keys = ""
         self._user_locale = get_locale()
         self._check_for_valid_styles()
         # backspace can be queried from the terminal database but is unreliable, query the terminal directly instead
@@ -1475,17 +1476,23 @@ class TerminalMenu:
         # pylint: disable=unsubscriptable-object,unsupported-membership-test
         assert self._terminal_code_to_codename is not None
         assert self._tty_in is not None
-        # Needed for asynchronous handling of terminal resize events
-        self._reading_next_key = True
-        if self._paint_before_next_read:
-            self._paint_menu()
-            self._paint_before_next_read = False
-        # blocks until any amount of bytes is available
-        code = os.read(self._tty_in.fileno(), 80).decode("utf-8", errors="ignore")
-        self._reading_next_key = False
-        if code in self._terminal_code_to_codename:
-            return self._terminal_code_to_codename[code]
-        elif ignore_case:
+        if not self._pending_keys:
+            # Needed for asynchronous handling of terminal resize events
+            self._reading_next_key = True
+            if self._paint_before_next_read:
+                self._paint_menu()
+                self._paint_before_next_read = False
+            # blocks until any amount of bytes is available
+            self._pending_keys = os.read(self._tty_in.fileno(), 80).decode("utf-8", errors="ignore")
+            self._reading_next_key = False
+
+        for termcode, codename in self._terminal_code_to_codename.items():
+            if self._pending_keys.startswith(termcode):
+                self._pending_keys = self._pending_keys[len(termcode) :]
+                return codename
+        code = self._pending_keys[0]
+        self._pending_keys = self._pending_keys[1:]
+        if ignore_case:
             return code.lower()
         else:
             return code
